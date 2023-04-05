@@ -1,7 +1,7 @@
 import pymongo
 import subprocess
-
-
+from datetime import datetime
+from dateutil import parser
 # Creating client
 client = pymongo.MongoClient("mongodb://localhost:27017/")
 
@@ -36,6 +36,7 @@ def create_collection_if_not_exits(colletion_name):
     except:
         print(f"Collection {colletion_name} is present in the database {db_name}")
 
+
 for collection in collection_names_list:
     create_collection_if_not_exits(collection)
 
@@ -52,6 +53,48 @@ if new_changes:
         filepath = json_file_path_list[i]
         import_documets_from_files(db_name=db_name, collection_name=collection_name, file_path=filepath)
 
+
+# Function to insert any new records into data we imported
+def insert_record(col_no):
+
+    if col_no == 1:
+        record = {
+            "name": input("Enter name: "),
+            "email": input("Enter email: "),
+            "moviesno": {"$oid": input("Enter movie no: ")},
+            "text": input("Enter text: "),
+            "date": datetime.datetime.utcnow()}
+        comments_collection.insert_one(record)
+
+    if col_no == 2:
+        record ={
+            "plot": input("Enter plot: "),
+            "genres": [input("Enter generes: ") for i in range(int(input("Enter no of generes: ")))],
+            "runtime": int(input("Enter the runtime: ")),
+            "cast": [input("Enter actor: ") for i in range(int(input("Enter no of actors: ")))],
+            "num_mflix_comments": int(input("Enter no of comments: ")),
+            "title": input("Enter tittle: "),
+            "fullplot": input("Enter full plot: "),
+            "countries": [input("Enter country: ") for i in range(int(input("Enter no of countries: ")))],
+            "released": parser.parse(input("Enter the date: ")),
+            "directors": [input("Enter director: ") for i in range(int(input("Enter no of directors: ")))],
+            "rated": input("Enter whether rated or unrated: "),
+            "awards": {"wins": int(input("Enter no of awards won: ")),
+                       "nominations": int(input("Enter no of nominatinos: ")),
+                       "text": input("Enter text about awards: ")},
+            "lastupdated": datetime.utcnow(),
+            "year": int(input("Enter the year: ")), "imdb": {"rating": float(input("Enter the imdb rating: ")),
+                                                             "votes": int(input("Enter no of votes in imdb: ")),
+                                                             "id": int(input("Enter the id in imdb: "))},
+            "type": input("Enter type: "),
+
+            "tomatoes": {"viewer": {"rating": int(input("Enter the tomatoes rating: ")),
+                                    "numReviews": int(input("Enter the no of reviews in tomato: ")),
+                                    "meter": int(input("Enter the meter: "))}},
+            "lastUpdated": datetime.utcnow()
+        }
+
+        movies_collection.insert_one(record)
 
 
 # Fid top `N` movies - with the highest IMDB rating
@@ -278,3 +321,6 @@ top_n_movies_for__every_genre()
 top10_cities_most_theaters()
 coordinates = input("coordinates")
 top10_theaters_near(coordinates=coordinates)
+
+
+client.close()
